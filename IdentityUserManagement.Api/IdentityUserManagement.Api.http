@@ -1,0 +1,6 @@
+@baseUrl = https://localhost:7060
+
+GET {{baseUrl}}/test?name=John
+Accept: application/json
+
+###
