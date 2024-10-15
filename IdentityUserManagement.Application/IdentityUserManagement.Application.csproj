@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\IdentityUserManagement.Core\IdentityUserManagement.Core.csproj" />
+  </ItemGroup>
+
 </Project>
