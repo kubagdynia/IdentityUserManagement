@@ -1,9 +1,13 @@
+using IdentityUserManagement.Infrastructure.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services
     .AddEndpointsApiExplorer() // Add the endpoint API explorer for generating OpenAPI document.
     .AddSwaggerGen(opt => opt.CustomSchemaIds(t => t.FullName?.Replace('+', '.'))); // Add Swagger generator
+
+builder.Services.AddInfrastructure(builder.Configuration); // Add the infrastructure services
 
 // Build the application
 var app = builder.Build();
