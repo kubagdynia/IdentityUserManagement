@@ -9,21 +9,21 @@ namespace IdentityUserManagement.Infrastructure.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<IdentityUserManagementDbContext>(options =>
         {
             options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
         });
 
-        services.AddIdentity<User, IdentityRole>()
+        services.AddIdentity<User, IdentityRole>(opt =>
+            {
+                opt.Password.RequiredLength = 7;
+                opt.Password.RequireDigit = false;
+                opt.Password.RequireUppercase = false;
+            })
             .AddEntityFrameworkStores<IdentityUserManagementDbContext>();
 
-        // services.AddIdentity<IdentityUser, IdentityRole>()
-        //     .AddEntityFrameworkStores<IdentityDbContext>()
-        //     .AddDefaultTokenProviders();
-        //
-        // services.AddScoped<ICurrentUserService, CurrentUserService>();
-        // services.AddTransient<IDateTime, DateTimeService>();
+        return services;
     }
 }
