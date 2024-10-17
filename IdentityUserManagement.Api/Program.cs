@@ -23,6 +23,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseExceptionHandler(); // Use the global exception handler
+
 app.MapAccountEndpoints();
 
 app.Run();

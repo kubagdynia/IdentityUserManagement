@@ -1,9 +1,9 @@
-using FluentValidation;
-using IdentityUserManagement.Application.Dto;
-using IdentityUserManagement.Application.Mappers;
-using IdentityUserManagement.Core.Entities;
+using IdentityUserManagement.Api.Endpoints.Contracts.V1;
+using IdentityUserManagement.Api.Endpoints.Mappers;
+using IdentityUserManagement.Api.ExceptionHandling;
+using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityUserManagement.Api.Endpoints;
 
@@ -23,30 +23,16 @@ public static class AccountEndpoints
     private static void RegisterUser(RouteGroupBuilder route)
     {
         route.MapPost("/register",
-            async Task<Results<Created, BadRequest, BadRequest<RegistrationResponseDto>>>
-                (UserRegistrationDto userRegistration, UserManager<User> userManager,
-                    IValidator<UserRegistrationDto> validator) =>
-            {
-                var validationResult = await validator.ValidateAsync(userRegistration);
-                if (!validationResult.IsValid)
+                async Task<Results<Created, BadRequest, BadRequest<ProblemDetails>>> (RegisterUserRequest request, IMediator mediator) =>
                 {
-                    return TypedResults.BadRequest(new RegistrationResponseDto(IsSuccessRegistration: false,
-                        Errors: validationResult.Errors.Select(e => e.ErrorMessage)));
-                }
-                
-                User user = userRegistration.MapToUser();
-                
-                // Save the user to the database
-                IdentityResult result = await userManager.CreateAsync(user, userRegistration.Password!);
-                if (!result.Succeeded)
-                {
-                    var errors = result.Errors.Select(e => e.Description);
-
-                    return TypedResults.BadRequest(new RegistrationResponseDto(IsSuccessRegistration: false,  Errors: errors));
-                }
-
-                return TypedResults.Created();
-            })
+                    var result = await mediator.Send(request.ToCommand());
+                    if (!result.IsSuccessRegistration)
+                    {
+                        return ProblemDetailsFactory.CreateBadRequest(result.Errors);
+                    }
+                    
+                    return TypedResults.Created();
+                })
             .WithName("RegisterUser")
             .WithSummary("Register a new user")
             .WithOpenApi();

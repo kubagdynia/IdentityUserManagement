@@ -1,11 +1,11 @@
 using FluentValidation;
-using IdentityUserManagement.Application.Dto;
 
-namespace IdentityUserManagement.Application.Validators;
+namespace IdentityUserManagement.Application.Commands.RegisterUser;
 
-public class UserRegistrationDtoValidator : AbstractValidator<UserRegistrationDto>
+// This validator is used to validate the RegisterUserCommand before processing it in the RegisterUserCommandHandler
+public class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
 {
-    public UserRegistrationDtoValidator()
+    public RegisterUserCommandValidator()
     {
         RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage("First name is required");
@@ -24,5 +24,4 @@ public class UserRegistrationDtoValidator : AbstractValidator<UserRegistrationDt
         RuleFor(x => x.ConfirmPassword)
             .Equal(x => x.Password).WithMessage("Passwords do not match");
     }
-
 }

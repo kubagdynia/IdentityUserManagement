@@ -6,7 +6,7 @@ public class DomainException(string message, DomainExceptionType exceptionType =
     
     public DomainExceptionType ExceptionType { get; private set; } = exceptionType;
     
-    public void AddDomainError(string errorCode, string errorMessage, string propertyName, object attemptedValue,
+    public void AddDomainError(string errorCode, string errorMessage, string propertyName = "", object? attemptedValue = null,
         string className = "", DomainErrorType errorType = DomainErrorType.Error)
     {
         DomainErrors.Add(new DomainError(errorCode, errorMessage, propertyName, attemptedValue, className, errorType));

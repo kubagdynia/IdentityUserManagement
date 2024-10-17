@@ -1,6 +1,8 @@
-namespace IdentityUserManagement.Application.Dto;
+using MediatR;
 
-public class UserRegistrationDto
+namespace IdentityUserManagement.Application.Commands.RegisterUser;
+
+public class RegisterUserCommand : IRequest<RegisterUserCommandResponse>
 {
     public string? FirstName { get; set; }
     
