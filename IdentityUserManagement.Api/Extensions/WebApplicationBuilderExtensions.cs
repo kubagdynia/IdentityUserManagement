@@ -1,6 +1,7 @@
 using System.Text;
 using IdentityUserManagement.Api.ExceptionHandling;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityUserManagement.Api.Extensions;
@@ -29,7 +30,13 @@ public static class WebApplicationBuilderExtensions
         });
 
         builder.Services
-            .AddAuthorization()
+            .AddAuthorization(opt =>
+            {
+                opt.DefaultPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+                    .Build();
+            })
             .AddEndpointsApiExplorer() // Add the endpoint API explorer for generating OpenAPI document.
             .AddSwaggerGen(opt => opt.CustomSchemaIds(t => t.FullName?.Replace('+', '.')))
             .AddExceptionHandler<GlobalExceptionHandler>()

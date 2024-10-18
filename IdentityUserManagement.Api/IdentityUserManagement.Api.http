@@ -1,6 +1,17 @@
 @baseUrl = https://localhost:7060
-
-GET {{baseUrl}}/test?name=John
-Accept: application/json
+@token = 
 
 ###
+
+POST {{baseUrl}}/api/accounts/authenticate
+Content-Type: application/json
+
+{
+    "email": "test@abc.com",
+    "password": "T3estP4ssword!"
+}
+
+###
+
+GET {{baseUrl}}/api/test?name=John
+Authorization: Bearer {{token}}

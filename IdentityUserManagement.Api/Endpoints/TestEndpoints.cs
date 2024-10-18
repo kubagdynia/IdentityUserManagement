@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Http.HttpResults;
-
 namespace IdentityUserManagement.Api.Endpoints;
 
 public static class TestEndpoints
@@ -16,17 +14,17 @@ public static class TestEndpoints
     private static void GetTest(RouteGroupBuilder route)
     {
         route.MapGet("",
-                Results<Ok<string>, NotFound, BadRequest>(string? name) =>
+                async Task<IResult>(string? name) =>
                 {
                     name ??= "World";
+                    await Task.CompletedTask;
                     return TypedResults.Ok($"Hello, {name}!");
                 })
             .WithName("Test")
             .WithSummary("Test endpoint")
             .RequireAuthorization()
-            .Produces<Ok<string>>()
-            .Produces<NotFound>()
-            .Produces<BadRequest>()
+            .Produces<string>()
+            .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
     }
 }

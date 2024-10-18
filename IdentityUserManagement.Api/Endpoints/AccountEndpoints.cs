@@ -40,8 +40,7 @@ public static class AccountEndpoints
     private static void AuthenticateUser(RouteGroupBuilder route)
     {
         route.MapPost("/authenticate",
-                async Task<IResult>
-                    (AuthenticateUserRequest request, IMediator mediator) =>
+                async Task<IResult> (AuthenticateUserRequest request, IMediator mediator) =>
                 {
                     var result = await mediator.Send(request.ToCommand());
                     return !result.IsSuccess
