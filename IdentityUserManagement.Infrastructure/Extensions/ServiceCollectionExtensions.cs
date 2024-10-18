@@ -1,5 +1,7 @@
+using IdentityUserManagement.Application.Security;
 using IdentityUserManagement.Core.Entities;
 using IdentityUserManagement.Infrastructure.Persistence;
+using IdentityUserManagement.Infrastructure.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +25,8 @@ public static class ServiceCollectionExtensions
                 opt.Password.RequireUppercase = false;
             })
             .AddEntityFrameworkStores<IdentityUserManagementDbContext>();
+
+        services.AddSingleton<IJwtHandler, JwtHandler>();
 
         return services;
     }

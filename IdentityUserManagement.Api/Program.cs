@@ -1,15 +1,11 @@
 using IdentityUserManagement.Api.Endpoints;
-using IdentityUserManagement.Api.ExceptionHandling;
+using IdentityUserManagement.Api.Extensions;
 using IdentityUserManagement.Application.Extensions;
 using IdentityUserManagement.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
-    .AddEndpointsApiExplorer() // Add the endpoint API explorer for generating OpenAPI document.
-    .AddSwaggerGen(opt => opt.CustomSchemaIds(t => t.FullName?.Replace('+', '.')))
-    .AddExceptionHandler<GlobalExceptionHandler>()
-    .AddProblemDetails()
+builder.AddPresentation().Services
     .AddApplication()
     .AddInfrastructure(builder.Configuration);
 
@@ -25,6 +21,10 @@ app.UseHttpsRedirection();
 
 app.UseExceptionHandler(); // Use the global exception handler
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapAccountEndpoints();
+app.MapTestEndpoints();
 
 app.Run();

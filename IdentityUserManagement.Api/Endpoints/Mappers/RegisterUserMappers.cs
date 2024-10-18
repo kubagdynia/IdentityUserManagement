@@ -3,7 +3,7 @@ using IdentityUserManagement.Application.Commands.RegisterUser;
 
 namespace IdentityUserManagement.Api.Endpoints.Mappers;
 
-public static class RegisterUserRequestMappers
+public static class RegisterUserMappers
 {
     public static RegisterUserCommand ToCommand(this RegisterUserRequest request)
     {

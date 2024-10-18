@@ -1,3 +1,4 @@
+using IdentityUserManagement.Application.Common;
 using IdentityUserManagement.Core.Exceptions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -19,19 +20,45 @@ public static class ProblemDetailsFactory
 
         return problemDetails;
     }
-
-    public static BadRequest<ProblemDetails> CreateBadRequest(List<string>? errors)
+    
+    public static Results<BadRequest<ProblemDetails>, Conflict<ProblemDetails>, IResult> MapErrorResponse(BaseDomainResponse baseDomainResponse)
     {
+        if (baseDomainResponse.ErrorType is null)
+        {
+            throw new ArgumentNullException(nameof(baseDomainResponse.ErrorType));
+        }
+        
+        if (baseDomainResponse.Errors is null || baseDomainResponse.Errors.Count == 0)
+        {
+            return baseDomainResponse.ErrorType switch
+            {
+                BaseDomainErrorType.NotFound => TypedResults.NotFound(),
+                BaseDomainErrorType.Unknown => TypedResults.Conflict(),
+                BaseDomainErrorType.Conflict => TypedResults.Conflict(),
+                BaseDomainErrorType.BadRequest => TypedResults.BadRequest(),
+                BaseDomainErrorType.Unauthorized => TypedResults.Unauthorized(),
+                _ => throw new NotSupportedException("Error type not supported")
+            };
+        }
+        
         var domainException = new DomainException("Error");
-        errors?.ForEach(error => domainException.AddDomainError("Error", error));
+        baseDomainResponse.Errors?.ForEach(error => domainException.AddDomainError("Error", error));
         
         var problemDetails = GetProblemDetails(
             domainException,
             title: "Error",
             problemStatus: StatusCodes.Status400BadRequest,
             detailMessage: null);
-
-        return TypedResults.BadRequest(problemDetails);
+        
+        return baseDomainResponse.ErrorType switch
+        {
+            BaseDomainErrorType.NotFound => TypedResults.NotFound(problemDetails),
+            BaseDomainErrorType.Unknown => TypedResults.Conflict(problemDetails),
+            BaseDomainErrorType.Conflict => TypedResults.Conflict(problemDetails),
+            BaseDomainErrorType.BadRequest => TypedResults.BadRequest(problemDetails),
+            BaseDomainErrorType.Unauthorized => TypedResults.Unauthorized(),
+            _ => throw new NotSupportedException("Error type not supported")
+        };
     }
     
     // Execute validation error
