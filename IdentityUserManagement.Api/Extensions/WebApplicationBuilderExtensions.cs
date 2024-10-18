@@ -25,7 +25,8 @@ public static class WebApplicationBuilderExtensions
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = jwtSettings["validIssuer"],
                 ValidAudience = jwtSettings["validAudience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.GetSection("securityKey").Value!))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.GetSection("securityKey").Value!)),
+                ClockSkew = TimeSpan.Zero // remove delay of token when expire
             };
         });
 
