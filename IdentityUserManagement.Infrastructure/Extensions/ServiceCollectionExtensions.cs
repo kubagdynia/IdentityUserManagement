@@ -2,7 +2,6 @@ using IdentityUserManagement.Application.Security;
 using IdentityUserManagement.Core.Entities;
 using IdentityUserManagement.Infrastructure.Persistence;
 using IdentityUserManagement.Infrastructure.Security;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +17,7 @@ public static class ServiceCollectionExtensions
             options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
         });
 
-        services.AddIdentity<User, IdentityRole>(opt =>
+        services.AddIdentity<User, Role>(opt =>
             {
                 opt.Password.RequiredLength = 7;
                 opt.Password.RequireDigit = false;
