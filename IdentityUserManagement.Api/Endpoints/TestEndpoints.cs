@@ -1,3 +1,5 @@
+using IdentityUserManagement.Core.Constants;
+
 namespace IdentityUserManagement.Api.Endpoints;
 
 public static class TestEndpoints
@@ -22,7 +24,7 @@ public static class TestEndpoints
                 })
             .WithName("Test")
             .WithSummary("Test endpoint")
-            .RequireAuthorization()
+            .RequireAuthorization(UserRoles.Admin)
             .Produces<string>()
             .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();

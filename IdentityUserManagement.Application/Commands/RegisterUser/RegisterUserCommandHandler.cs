@@ -1,3 +1,4 @@
+using IdentityUserManagement.Core.Constants;
 using IdentityUserManagement.Core.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -18,6 +19,8 @@ public class RegisterUserCommandHandler(UserManager<User> userManager) : IReques
             response.AddErrors(result.Errors.Select(e => e.Description));
             return response;
         }
+
+        await userManager.AddToRoleAsync(user, UserRoles.User);
         
         return new RegisterUserCommandResponse { IsSuccessRegistration = true };
     }
