@@ -4,6 +4,7 @@ using IdentityUserManagement.Core.Entities;
 using IdentityUserManagement.Infrastructure.Configurations;
 using IdentityUserManagement.Infrastructure.Persistence;
 using IdentityUserManagement.Infrastructure.Security;
+using IdentityUserManagement.Infrastructure.Email;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +33,8 @@ public static class ServiceCollectionExtensions
             .AddEntityFrameworkStores<IdentityUserManagementDbContext>();
 
         services.AddSingleton<IJwtHandler, JwtHandler>();
+        
+        services.AddFluentEmail(configuration);
 
         return services;
     }
