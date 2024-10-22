@@ -5,9 +5,11 @@ using IdentityUserManagement.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddPresentation().Services
+builder.Services
     .AddApplication()
     .AddInfrastructure(builder.Configuration);
+
+builder.AddPresentation();
 
 var app = builder.Build();
 

@@ -3,14 +3,15 @@ using System.Security.Claims;
 using System.Text;
 using IdentityUserManagement.Application.Security;
 using IdentityUserManagement.Core.Entities;
-using Microsoft.Extensions.Configuration;
+using IdentityUserManagement.Infrastructure.Configurations;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityUserManagement.Infrastructure.Security;
 
-public class JwtHandler(IConfiguration configuration) : IJwtHandler
+public class JwtHandler(IOptions<JwtSettings> jwtSettings) : IJwtHandler
 {
-    private readonly IConfigurationSection _jwtSettings = configuration.GetSection("JWTSettings");
+    private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     
     public string GenerateToken(User user, IList<string> roles)
     {
@@ -23,7 +24,7 @@ public class JwtHandler(IConfiguration configuration) : IJwtHandler
     
     private SigningCredentials GetSigningCredentials()
     {
-        var secret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings["securityKey"]!));
+        var secret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecurityKey));
         return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
     }
     
@@ -31,7 +32,6 @@ public class JwtHandler(IConfiguration configuration) : IJwtHandler
     {
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, user.UserName!),
             new(ClaimTypes.NameIdentifier, user.Id)
         };
         
@@ -44,10 +44,10 @@ public class JwtHandler(IConfiguration configuration) : IJwtHandler
     private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
     {
         var tokenOptions = new JwtSecurityToken(
-            issuer: _jwtSettings["validIssuer"],
-            audience: _jwtSettings["validAudience"],
+            issuer: _jwtSettings.ValidIssuer,
+            audience: _jwtSettings.ValidAudience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_jwtSettings["expiryInMinutes"])),
+            expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_jwtSettings.ExpiryInMinutes)),
             signingCredentials: signingCredentials);
 
         return tokenOptions;

@@ -1,10 +1,13 @@
+using IdentityUserManagement.Application.Interfaces;
 using IdentityUserManagement.Application.Security;
 using IdentityUserManagement.Core.Entities;
+using IdentityUserManagement.Infrastructure.Configurations;
 using IdentityUserManagement.Infrastructure.Persistence;
 using IdentityUserManagement.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace IdentityUserManagement.Infrastructure.Extensions;
 
@@ -12,6 +15,9 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        RegisterJwtSettings(services, configuration);
+        RegisterIdentitySettings(services, configuration);
+
         services.AddDbContext<IdentityUserManagementDbContext>(options =>
         {
             options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
@@ -28,5 +34,21 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IJwtHandler, JwtHandler>();
 
         return services;
+    }
+
+    private static void RegisterJwtSettings(IServiceCollection services, IConfiguration configuration)
+    {
+        var jwtSettings = configuration.GetSection(JwtSettings.SectionName);
+        services.Configure<JwtSettings>(jwtSettings);
+    }
+
+    private static void RegisterIdentitySettings(IServiceCollection services, IConfiguration configuration)
+    {
+        // Bind IdentitySettings from appsettings.json
+        services.Configure<IdentitySettings>(configuration.GetSection(IdentitySettings.SectionName));
+        
+        // Register IdentitySettings as an implementation of IIdentitySettings
+        services.AddSingleton<IIdentitySettings>(sp => 
+            sp.GetRequiredService<IOptions<IdentitySettings>>().Value);
     }
 }

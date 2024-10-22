@@ -1,8 +1,11 @@
 using System.Text;
 using IdentityUserManagement.Api.ExceptionHandling;
+using IdentityUserManagement.Core.Constants;
+using IdentityUserManagement.Infrastructure.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
 
 namespace IdentityUserManagement.Api.Extensions;
 
@@ -19,8 +22,7 @@ public static class WebApplicationBuilderExtensions
     
     private static void ConfigureAuthentication(WebApplicationBuilder builder)
     {
-        var jwtSettings = builder.Configuration.GetSection("JWTSettings");
-        var securityKey = jwtSettings["securityKey"] ?? throw new ArgumentNullException("securityKey");
+        var jwtSettings = GetJwtSettings(builder);
 
         builder.Services.AddAuthentication(options =>
         {
@@ -34,14 +36,21 @@ public static class WebApplicationBuilderExtensions
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = jwtSettings["validIssuer"],
-                ValidAudience = jwtSettings["validAudience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityKey)),
+                ValidIssuer = jwtSettings.ValidIssuer,
+                ValidAudience = jwtSettings.ValidAudience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecurityKey)),
                 ClockSkew = TimeSpan.Zero // Remove delay for token expiration
             };
         });
     }
-    
+
+    private static JwtSettings GetJwtSettings(WebApplicationBuilder builder)
+    {
+        using var scope = builder.Services.BuildServiceProvider().CreateScope();
+        var jwtSettings = scope.ServiceProvider.GetRequiredService<IOptions<JwtSettings>>().Value;
+        return jwtSettings;
+    }
+
     private static void ConfigureAuthorization(WebApplicationBuilder builder)
     {
         builder.Services.AddAuthorization(options =>
@@ -51,8 +60,8 @@ public static class WebApplicationBuilderExtensions
                 .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
                 .Build();
 
-            options.AddPolicy("Admin", policy =>
-                policy.RequireRole("Admin").AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme));
+            options.AddPolicy(UserRoles.Admin, policy =>
+                policy.RequireRole(UserRoles.Admin).AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme));
         });
     }
     
