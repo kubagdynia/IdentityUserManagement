@@ -13,7 +13,7 @@ public class AuthenticateUserCommandHandler(UserManager<User> userManager, IJwtH
     {
         var user = await userManager.FindByNameAsync(request.Email!);
         
-        if (user == null)
+        if (user is null)
         {
             return new AuthenticateUserCommandResponse
                 { ErrorType = BaseDomainErrorType.BadRequest };

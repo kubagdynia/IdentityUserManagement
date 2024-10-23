@@ -18,6 +18,12 @@ public static class AccountEndpoints
         // POST /api/accounts/authenticate
         AuthenticateUser(route);
         
+        // POST /api/accounts/forgotpassword
+        ForgotPassword(route);
+        
+        // POST /api/accounts/resetpassword
+        ResetPassword(route);
+        
         return app;
     }
 
@@ -53,6 +59,36 @@ public static class AccountEndpoints
             .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
             .Produces<ProblemDetails>(StatusCodes.Status409Conflict)
             .Produces<ProblemDetails>(StatusCodes.Status401Unauthorized)
+            .WithOpenApi();
+    }
+    
+    private static void ForgotPassword(RouteGroupBuilder route)
+    {
+        route.MapPost("/forgotpassword",
+                async Task<IResult> (ForgotPasswordRequest request, IMediator mediator) =>
+                {
+                    var result = await mediator.Send(request.ToCommand());
+                    return !result.IsSuccess ? ProblemDetailsFactory.MapErrorResponse(result) : TypedResults.Ok();
+                })
+            .WithName("ForgotPassword")
+            .WithSummary("Send a password reset link to the user's email")
+            .Produces(StatusCodes.Status200OK)
+            .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
+    }
+    
+    private static void ResetPassword(RouteGroupBuilder route)
+    {
+        route.MapPost("/resetpassword",
+                async Task<IResult> (ResetPasswordRequest request, IMediator mediator) =>
+                {
+                    var result = await mediator.Send(request.ToCommand());
+                    return !result.IsSuccess ? ProblemDetailsFactory.MapErrorResponse(result) : TypedResults.Ok();
+                })
+            .WithName("ResetPassword")
+            .WithSummary("Reset the user's password")
+            .Produces(StatusCodes.Status200OK)
+            .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
             .WithOpenApi();
     }
 }

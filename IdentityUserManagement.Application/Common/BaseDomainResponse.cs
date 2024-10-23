@@ -10,7 +10,7 @@ public class BaseDomainResponse
 
     public void AddError(string errorMessage, BaseDomainErrorType errorType = BaseDomainErrorType.Unknown)
     {
-        ErrorType = errorType;
+        ErrorType ??= errorType;
         
         Errors ??= [];
         Errors.Add(errorMessage);
@@ -18,7 +18,7 @@ public class BaseDomainResponse
     
     public void AddErrors(IEnumerable<string> errorMessages, BaseDomainErrorType errorType = BaseDomainErrorType.Unknown)
     {
-        ErrorType = errorType;
+        ErrorType ??= errorType;
         
         Errors ??= [];
         Errors.AddRange(errorMessages);

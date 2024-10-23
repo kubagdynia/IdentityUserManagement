@@ -5,6 +5,7 @@ using IdentityUserManagement.Infrastructure.Configurations;
 using IdentityUserManagement.Infrastructure.Persistence;
 using IdentityUserManagement.Infrastructure.Security;
 using IdentityUserManagement.Infrastructure.Email;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,7 +31,13 @@ public static class ServiceCollectionExtensions
                 opt.Password.RequireDigit = false;
                 opt.Password.RequireUppercase = false;
             })
-            .AddEntityFrameworkStores<IdentityUserManagementDbContext>();
+            .AddEntityFrameworkStores<IdentityUserManagementDbContext>()
+            .AddDefaultTokenProviders();
+        
+        services.Configure<DataProtectionTokenProviderOptions>(opt =>
+        {
+            opt.TokenLifespan = TimeSpan.FromHours(2); // Default is 1 day
+        });
 
         services.AddSingleton<IJwtHandler, JwtHandler>();
         
