@@ -16,9 +16,5 @@
   <ItemGroup>
     <ProjectReference Include="..\IdentityUserManagement.Core\IdentityUserManagement.Core.csproj" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="Validators\" />
-  </ItemGroup>
 
 </Project>

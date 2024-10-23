@@ -4,7 +4,7 @@ using FluentEmail.Core.Models;
 
 namespace IdentityUserManagement.Infrastructure.Email;
 
-public class EmailToFileSender(string directory) : ISender
+internal class EmailToFileSender(string directory) : ISender
 {
     public SendResponse Send(IFluentEmail email, CancellationToken? token = null)
     {

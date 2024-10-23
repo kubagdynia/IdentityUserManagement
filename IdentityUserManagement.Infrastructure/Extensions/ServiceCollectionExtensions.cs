@@ -39,7 +39,7 @@ public static class ServiceCollectionExtensions
             opt.TokenLifespan = TimeSpan.FromHours(2); // Default is 1 day
         });
 
-        services.AddSingleton<IJwtHandler, JwtHandler>();
+        services.AddSingleton<ITokenGenerator, JwtTokenGenerator>();
         
         services.AddFluentEmail(configuration);
 

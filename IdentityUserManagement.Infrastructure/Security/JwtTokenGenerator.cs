@@ -9,7 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityUserManagement.Infrastructure.Security;
 
-public class TokenGenerator(IOptions<JwtSettings> jwtSettings) : ITokenGenerator
+internal class JwtTokenGenerator(IOptions<JwtSettings> jwtSettings) : ITokenGenerator
 {
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     

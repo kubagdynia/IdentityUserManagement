@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace IdentityUserManagement.Application.Commands.ResetPassword;
 
-public class ResetPasswordCommandHandler(UserManager<User> userManager)
+internal class ResetPasswordCommandHandler(UserManager<User> userManager)
     : IRequestHandler<ResetPasswordCommand, ResetPasswordCommandResponse>
 {
     public async Task<ResetPasswordCommandResponse> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)

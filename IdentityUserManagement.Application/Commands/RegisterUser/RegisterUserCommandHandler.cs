@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace IdentityUserManagement.Application.Commands.RegisterUser;
 
-public class RegisterUserCommandHandler(UserManager<User> userManager, IIdentitySettings identitySettings)
+internal class RegisterUserCommandHandler(UserManager<User> userManager, IIdentitySettings identitySettings)
     : IRequestHandler<RegisterUserCommand, RegisterUserCommandResponse>
 {
     public async Task<RegisterUserCommandResponse> Handle(RegisterUserCommand request, CancellationToken cancellationToken)

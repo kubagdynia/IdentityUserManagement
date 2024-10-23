@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace IdentityUserManagement.Application.Commands.AuthenticateUser;
 
-public class AuthenticateUserCommandHandler(UserManager<User> userManager, IJwtHandler jwtHandler)
+internal class AuthenticateUserCommandHandler(UserManager<User> userManager, ITokenGenerator tokenGenerator)
     : IRequestHandler<AuthenticateUserCommand, AuthenticateUserCommandResponse>
 {
     public async Task<AuthenticateUserCommandResponse> Handle(AuthenticateUserCommand request, CancellationToken cancellationToken)
@@ -26,7 +26,7 @@ public class AuthenticateUserCommandHandler(UserManager<User> userManager, IJwtH
         }
         
         var roles = await userManager.GetRolesAsync(user);
-        var token = jwtHandler.GenerateToken(user, roles);
+        var token = tokenGenerator.GenerateToken(user, roles);
 
         return new AuthenticateUserCommandResponse { IsAuthSuccessful = true, Token = token };
     }

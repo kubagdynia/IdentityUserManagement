@@ -2,7 +2,7 @@ using IdentityUserManagement.Core.Entities;
 
 namespace IdentityUserManagement.Application.Security;
 
-public interface IJwtHandler
+public interface ITokenGenerator
 {
     string GenerateToken(User user, IList<string> roles);
 }

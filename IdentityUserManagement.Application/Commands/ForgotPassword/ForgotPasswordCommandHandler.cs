@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace IdentityUserManagement.Application.Commands.ForgotPassword;
 
-public class ForgotPasswordCommandHandler(UserManager<User> userManager, IEmailService emailService)
+internal class ForgotPasswordCommandHandler(UserManager<User> userManager, IEmailService emailService)
     : IRequestHandler<ForgotPasswordCommand, ForgotPasswordCommandResponse>
 {
     public async Task<ForgotPasswordCommandResponse> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
