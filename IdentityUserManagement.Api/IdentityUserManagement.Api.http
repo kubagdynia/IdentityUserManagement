@@ -1,17 +1,53 @@
 @baseUrl = https://localhost:7060
 @token = 
 
-###
+### Authenticate a user
 
 POST {{baseUrl}}/api/accounts/authenticate
 Content-Type: application/json
 
 {
-    "email": "test@abc.com",
-    "password": "T3estP4ssword!"
+  "email": "angelinaswan@gmail.com",
+  "password": "T3estP4ssword!!!"
 }
 
-###
+### Register a new user
+
+POST {{baseUrl}}/api/accounts/register
+Content-Type: application/json
+
+{
+  "firstName": "Angelina1",
+  "lastName": "Swan1",
+  "email": "angelinaswan1@gmail.com",
+  "password": "T3estP4ssword!!",
+  "confirmPassword": "T3estP4ssword!!",
+  "clientUri": "http://localhost:7060/authentication/emailconfirmation"
+}
+
+### Send a password reset link to the user's email
+
+POST {{baseUrl}}/api/accounts/forgotpassword
+Content-Type: application/json
+
+{
+  "email": "angelinaswan1@gmail.com",
+  "clientUri": "https://localhost:7060/authentication/resetpassword"
+}
+
+### Reset the user's password
+
+POST {{baseUrl}}/api/accounts/resetpassword
+Content-Type: application/json
+
+{
+  "password": "T3estP4ssword!!!",
+  "confirmPassword": "T3estP4ssword!!!",
+  "email": "angelinaswan1@gmail.com",
+  "token": "CfDJ8G90YWI%2FB6pEqt99W4Gpn9UGrAM0bNJGgiUW0tTovFC%2Bi1nVetwOOb70eQtwlE9SciH3s9mwr8XmJDYpS6sc3g9m9E%2Fm2Zwkxm%2F2XV83UT9KpufF6tnbn8leB44H%2F3SVOWwNV%2F7beddtC70GV4PTtrOUQfEJhTbJE7k4JqPbPUVxJFB5HtesIL7hSXv3wxq48CBc%2BUL0km2tZw3Ihb3w8tR%2Bp5MKlIre4%2FssOWsxhERW"
+}
+
+### Test endpoint
 
 GET {{baseUrl}}/api/test?name=John
 Authorization: Bearer {{token}}
