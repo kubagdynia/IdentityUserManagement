@@ -1,4 +1,5 @@
 using IdentityUserManagement.Application.Common;
+using IdentityUserManagement.Application.Extensions;
 using IdentityUserManagement.Core.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -21,13 +22,9 @@ internal class ResetPasswordCommandHandler(UserManager<User> userManager)
         var decodedToken = Uri.UnescapeDataString(request.Token!);
         
         var result = await userManager.ResetPasswordAsync(user, decodedToken, request.Password!);
-
-        if (result.Succeeded) return new ResetPasswordCommandResponse();
         
-        var response = new ResetPasswordCommandResponse();
-        response.AddErrors(
-            errorMessages: result.Errors.Select(e => new BaseDomainError { Code = e.Code, Message = e.Description }),
-            errorType: BaseDomainErrorType.BadRequest);
-        return response;
+        return result.Succeeded
+            ? new ResetPasswordCommandResponse()
+            : result.MapErrors<ResetPasswordCommandResponse>(BaseDomainErrorType.BadRequest);
     }
 }

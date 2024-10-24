@@ -24,6 +24,9 @@ public static class AccountEndpoints
         // POST /api/accounts/resetpassword
         ResetPassword(route);
         
+        // POST /api/accounts/confirmemail
+        ConfirmEmail(route);
+        
         return app;
     }
 
@@ -87,6 +90,21 @@ public static class AccountEndpoints
                 })
             .WithName("ResetPassword")
             .WithSummary("Reset the user's password")
+            .Produces(StatusCodes.Status200OK)
+            .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
+    }
+    
+    private static void ConfirmEmail(RouteGroupBuilder route)
+    {
+        route.MapPost("/confirmemail",
+                async Task<IResult> (ConfirmEmailRequest request, IMediator mediator, IProblemDetailsFactory problemDetailsFactory) =>
+                {
+                    var result = await mediator.Send(request.ToCommand());
+                    return !result.IsSuccess ? problemDetailsFactory.MapErrorResponse(result) : TypedResults.Ok();
+                })
+            .WithName("ConfirmEmail")
+            .WithSummary("Confirm the user's email")
             .Produces(StatusCodes.Status200OK)
             .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
             .WithOpenApi();

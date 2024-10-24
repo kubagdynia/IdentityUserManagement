@@ -25,6 +25,16 @@ Content-Type: application/json
   "clientUri": "http://localhost:7060/authentication/emailconfirmation"
 }
 
+### Confirm the user's email
+
+POST {{baseUrl}}/api/accounts/confirmemail
+Content-Type: application/json
+
+{
+  "email": "",
+  "token": ""
+}
+
 ### Send a password reset link to the user's email
 
 POST {{baseUrl}}/api/accounts/forgotpassword

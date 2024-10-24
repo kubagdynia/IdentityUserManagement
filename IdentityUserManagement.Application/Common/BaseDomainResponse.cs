@@ -8,12 +8,11 @@ public class BaseDomainResponse
     
     public bool IsSuccess => ErrorType is null;
 
-    public void AddError(BaseDomainError errorMessage, BaseDomainErrorType errorType = BaseDomainErrorType.Unknown)
+    public void AddError(string code, string message, BaseDomainErrorType errorType = BaseDomainErrorType.Unknown)
     {
         ErrorType ??= errorType;
-        
         Errors ??= [];
-        Errors.Add(errorMessage);
+        Errors.Add(new BaseDomainError { Code = code, Message = message });
     }
     
     public void AddErrors(IEnumerable<BaseDomainError> errorMessages, BaseDomainErrorType errorType = BaseDomainErrorType.Unknown)
