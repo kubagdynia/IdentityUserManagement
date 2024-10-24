@@ -15,14 +15,19 @@ internal class AuthenticateUserCommandHandler(UserManager<User> userManager, ITo
         
         if (user is null)
         {
-            return new AuthenticateUserCommandResponse
-                { ErrorType = BaseDomainErrorType.BadRequest };
+            return new AuthenticateUserCommandResponse { ErrorType = BaseDomainErrorType.BadRequest };
+        }
+        
+        if (!await userManager.IsEmailConfirmedAsync(user))
+        {
+            var response = new AuthenticateUserCommandResponse();
+            response.AddError(errorMessage: "Email is not confirmed", errorType: BaseDomainErrorType.Conflict);
+            return response;
         }
 
         if (!await userManager.CheckPasswordAsync(user, request.Password!))
         {
-            return new AuthenticateUserCommandResponse
-                { ErrorType = BaseDomainErrorType.Unauthorized };
+            return new AuthenticateUserCommandResponse { ErrorType = BaseDomainErrorType.Unauthorized };
         }
         
         var roles = await userManager.GetRolesAsync(user);

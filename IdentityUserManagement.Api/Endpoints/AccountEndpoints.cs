@@ -31,10 +31,10 @@ public static class AccountEndpoints
     private static void RegisterUser(RouteGroupBuilder route)
     {
         route.MapPost("/register",
-                async Task<IResult> (RegisterUserRequest request, IMediator mediator) =>
+                async Task<IResult> (RegisterUserRequest request, IMediator mediator, IProblemDetailsFactory problemDetailsFactory) =>
                 {
                     var result = await mediator.Send(request.ToCommand());
-                    return !result.IsSuccess ? ProblemDetailsFactory.MapErrorResponse(result) : TypedResults.Created();
+                    return !result.IsSuccess ? problemDetailsFactory.MapErrorResponse(result) : TypedResults.Created();
                 })
             .WithName("RegisterUser")
             .WithSummary("Register a new user")
@@ -46,11 +46,11 @@ public static class AccountEndpoints
     private static void AuthenticateUser(RouteGroupBuilder route)
     {
         route.MapPost("/authenticate",
-                async Task<IResult> (AuthenticateUserRequest request, IMediator mediator) =>
+                async Task<IResult> (AuthenticateUserRequest request, IMediator mediator, IProblemDetailsFactory problemDetailsFactory) =>
                 {
                     var result = await mediator.Send(request.ToCommand());
                     return !result.IsSuccess
-                        ? ProblemDetailsFactory.MapErrorResponse(result)
+                        ? problemDetailsFactory.MapErrorResponse(result)
                         : TypedResults.Ok(result.ToResponse());
                 })
             .WithName("AuthenticateUser")
@@ -65,10 +65,10 @@ public static class AccountEndpoints
     private static void ForgotPassword(RouteGroupBuilder route)
     {
         route.MapPost("/forgotpassword",
-                async Task<IResult> (ForgotPasswordRequest request, IMediator mediator) =>
+                async Task<IResult> (ForgotPasswordRequest request, IMediator mediator, IProblemDetailsFactory problemDetailsFactory) =>
                 {
                     var result = await mediator.Send(request.ToCommand());
-                    return !result.IsSuccess ? ProblemDetailsFactory.MapErrorResponse(result) : TypedResults.Ok();
+                    return !result.IsSuccess ? problemDetailsFactory.MapErrorResponse(result) : TypedResults.Ok();
                 })
             .WithName("ForgotPassword")
             .WithSummary("Send a password reset link to the user's email")
@@ -80,10 +80,10 @@ public static class AccountEndpoints
     private static void ResetPassword(RouteGroupBuilder route)
     {
         route.MapPost("/resetpassword",
-                async Task<IResult> (ResetPasswordRequest request, IMediator mediator) =>
+                async Task<IResult> (ResetPasswordRequest request, IMediator mediator, IProblemDetailsFactory problemDetailsFactory) =>
                 {
                     var result = await mediator.Send(request.ToCommand());
-                    return !result.IsSuccess ? ProblemDetailsFactory.MapErrorResponse(result) : TypedResults.Ok();
+                    return !result.IsSuccess ? problemDetailsFactory.MapErrorResponse(result) : TypedResults.Ok();
                 })
             .WithName("ResetPassword")
             .WithSummary("Reset the user's password")

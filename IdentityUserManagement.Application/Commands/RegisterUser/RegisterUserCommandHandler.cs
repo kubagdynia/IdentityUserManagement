@@ -12,12 +12,13 @@ internal class RegisterUserCommandHandler(UserManager<User> userManager, IIdenti
     public async Task<RegisterUserCommandResponse> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
         User user = request.MapToUser();
+        SetEmailAsConfirmed(user);
         
         // Save the user to the database
         IdentityResult result = await userManager.CreateAsync(user, request.Password!);
         if (!result.Succeeded)
         {
-            var response = new RegisterUserCommandResponse { IsSuccessRegistration = false};
+            var response = new RegisterUserCommandResponse { IsSuccessRegistration = false };
             response.AddErrors(result.Errors.Select(e => e.Description));
             return response;
         }
@@ -28,15 +29,9 @@ internal class RegisterUserCommandHandler(UserManager<User> userManager, IIdenti
     }
 
     private async Task AddRoles(User user)
-    {
-        if (identitySettings.RegisterUserWithAdminRole)
-        {
-            await userManager.AddToRoleAsync(user, UserRoles.Admin);
-        }
-        else
-        {
-            await userManager.AddToRoleAsync(user, UserRoles.User);
-            
-        }
-    }
+        => await userManager.AddToRoleAsync(user,
+            identitySettings.RegisterUserWithAdminRole ? UserRoles.Admin : UserRoles.User);
+    
+    private void SetEmailAsConfirmed(User user) 
+        => user.EmailConfirmed = identitySettings.SetEmailAsConfirmedDuringRegistration;
 }

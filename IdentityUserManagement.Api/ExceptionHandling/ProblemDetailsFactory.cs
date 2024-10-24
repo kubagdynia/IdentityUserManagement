@@ -5,51 +5,28 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityUserManagement.Api.ExceptionHandling;
 
-public static class ProblemDetailsFactory
+public class ProblemDetailsFactory(ILogger<ProblemDetailsFactory> logger) : IProblemDetailsFactory
 {
-    public static ProblemDetails Create(HttpContext httpContext, DomainException domainException)
-    {
-        // Handle domain exceptions
-        var problemDetails = domainException.ExceptionType switch
-        {
-            DomainExceptionType.ValidationError => ExecuteValidationError(httpContext, domainException),
-            DomainExceptionType.Error => ExecuteConflict(httpContext, domainException),
-            DomainExceptionType.Conflict => ExecuteConflict(httpContext, domainException),
-            _ => throw new ArgumentOutOfRangeException()
-        };
+    public ProblemDetails Create(HttpContext httpContext, DomainException domainException)
+        => CreateProblemDetails(httpContext, domainException);
 
-        return problemDetails;
-    }
-    
-    public static Results<BadRequest<ProblemDetails>, Conflict<ProblemDetails>, IResult> MapErrorResponse(BaseDomainResponse baseDomainResponse)
+    public Results<BadRequest<ProblemDetails>, Conflict<ProblemDetails>, IResult> MapErrorResponse(BaseDomainResponse baseDomainResponse)
     {
         if (baseDomainResponse.ErrorType is null)
         {
             throw new ArgumentNullException(nameof(baseDomainResponse.ErrorType));
         }
-        
+
         if (baseDomainResponse.Errors is null || baseDomainResponse.Errors.Count == 0)
         {
-            return baseDomainResponse.ErrorType switch
-            {
-                BaseDomainErrorType.NotFound => TypedResults.NotFound(),
-                BaseDomainErrorType.Unknown => TypedResults.Conflict(),
-                BaseDomainErrorType.Conflict => TypedResults.Conflict(),
-                BaseDomainErrorType.BadRequest => TypedResults.BadRequest(),
-                BaseDomainErrorType.Unauthorized => TypedResults.Unauthorized(),
-                _ => throw new NotSupportedException("Error type not supported")
-            };
+            return MapBasicErrorResponse(baseDomainResponse.ErrorType);
         }
-        
+
         var domainException = new DomainException("Error");
         baseDomainResponse.Errors?.ForEach(error => domainException.AddDomainError("Error", error));
-        
-        var problemDetails = GetProblemDetails(
-            domainException,
-            title: "Error",
-            problemStatus: StatusCodes.Status400BadRequest,
-            detailMessage: null);
-        
+
+        var problemDetails = CreateProblemDetails(domainException, "Error", GetProblemStatus(baseDomainResponse.ErrorType.Value));
+
         return baseDomainResponse.ErrorType switch
         {
             BaseDomainErrorType.NotFound => TypedResults.NotFound(problemDetails),
@@ -60,82 +37,71 @@ public static class ProblemDetailsFactory
             _ => throw new NotSupportedException("Error type not supported")
         };
     }
-    
-    // Execute validation error
-    private static ProblemDetails ExecuteValidationError(HttpContext httpContext, DomainException domainException)
+
+    private ProblemDetails CreateProblemDetails(HttpContext httpContext, DomainException domainException)
     {
-        httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+        var (statusCode, title) = domainException.ExceptionType switch
+        {
+            DomainExceptionType.ValidationError => (StatusCodes.Status400BadRequest, "Validation Error"),
+            DomainExceptionType.Error or DomainExceptionType.Conflict => (StatusCodes.Status409Conflict, "Error"),
+            _ => throw new ArgumentOutOfRangeException()
+        };
 
-        var problemDetails = GetProblemDetails(
-            domainException,
-            title: "Validation Error",
-            problemStatus: StatusCodes.Status400BadRequest,
-            detailMessage: null);
-            //detailMessage: error => $"Validation for '{error.PropertyName}' with value '{error.AttemptedValue}' failed in {error.ClassName}");
+        httpContext.Response.StatusCode = statusCode;
 
-        return problemDetails;
-    }
-    
-    // Execute conflict error
-    private static ProblemDetails ExecuteConflict(HttpContext httpContext, DomainException domainException)
-    {
-        httpContext.Response.StatusCode = StatusCodes.Status409Conflict;
-        
-        var problemDetails = GetProblemDetails(
-            domainException,
-            title: "Error",
-            problemStatus: StatusCodes.Status409Conflict,
-            detailMessage: null);
-
-        return problemDetails;
+        return CreateProblemDetails(domainException, title, statusCode);
     }
 
-    // Get problem details from domain exception
-    private static ProblemDetails GetProblemDetails(DomainException domainException,
-        string title, int problemStatus,
-        Func<DomainError, string>? detailMessage = null)
+    private ProblemDetails CreateProblemDetails(DomainException domainException, string title, int statusCode)
     {
-        string problemType = GetProblemType(problemStatus);
-        
         var problemDetails = new ProblemDetails
         {
-            Status = problemStatus,
+            Status = statusCode,
             Title = title,
-            Type = problemType
-        };
-        
-        var errors = new List<Error>();
-        
-        // Add domain errors to the problem details
-        foreach (var error in domainException.DomainErrors)
-        {
-            errors.Add(new Error(
-                Code: error.ErrorCode,
-                Title: title,
-                UserMessage: error.ErrorMessage,
-                Details: detailMessage?.Invoke(error)
-            ));
-        }
-        
-        // Add errors to the problem details extensions
-        if (errors.Any())
-        {
-            problemDetails.Extensions = new Dictionary<string, object?>
+            Type = GetProblemType(statusCode),
+            Extensions = new Dictionary<string, object?>
             {
-                { "errors", errors }
-            };
-        }
-        
+                { "errors", domainException.DomainErrors.Select(e => new Error(e.ErrorCode, title, e.ErrorMessage, null)).ToList() }
+            }
+        };
+
         return problemDetails;
     }
 
-    private static string GetProblemType(int problemStatus)
+    private Results<BadRequest<ProblemDetails>, Conflict<ProblemDetails>, IResult> MapBasicErrorResponse(BaseDomainErrorType? errorType)
     {
-        return problemStatus switch
+        return errorType switch
+        {
+            BaseDomainErrorType.NotFound => TypedResults.NotFound(),
+            BaseDomainErrorType.Unknown or BaseDomainErrorType.Conflict => TypedResults.Conflict(),
+            BaseDomainErrorType.BadRequest => TypedResults.BadRequest(),
+            BaseDomainErrorType.Unauthorized => TypedResults.Unauthorized(),
+            _ => throw new NotSupportedException("Error type not supported")
+        };
+    }
+
+    private string GetProblemType(int statusCode)
+    {
+        return statusCode switch
         {
             StatusCodes.Status400BadRequest => "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1",
+            StatusCodes.Status403Forbidden => "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.3",
+            StatusCodes.Status404NotFound => "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.4",
             StatusCodes.Status409Conflict => "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.8",
+            StatusCodes.Status500InternalServerError => "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1",
             _ => string.Empty
+        };
+    }
+
+    private int GetProblemStatus(BaseDomainErrorType errorType)
+    {
+        return errorType switch
+        {
+            BaseDomainErrorType.NotFound => StatusCodes.Status404NotFound,
+            BaseDomainErrorType.Unknown or BaseDomainErrorType.Conflict => StatusCodes.Status409Conflict,
+            BaseDomainErrorType.BadRequest => StatusCodes.Status400BadRequest,
+            BaseDomainErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
+            _ => throw new NotSupportedException("Error type not supported")
         };
     }
 }

@@ -17,6 +17,8 @@ public static class WebApplicationBuilderExtensions
         ConfigureAuthorization(builder);
         ConfigureSwaggerAndExceptionHandling(builder);
         
+        builder.Services.AddSingleton<IProblemDetailsFactory, ProblemDetailsFactory>();
+        
         return builder;
     }
     
