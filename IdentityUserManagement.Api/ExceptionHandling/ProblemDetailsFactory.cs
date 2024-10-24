@@ -23,7 +23,7 @@ public class ProblemDetailsFactory(ILogger<ProblemDetailsFactory> logger) : IPro
         }
 
         var domainException = new DomainException("Error");
-        baseDomainResponse.Errors?.ForEach(error => domainException.AddDomainError("Error", error));
+        baseDomainResponse.Errors?.ForEach(error => domainException.AddDomainError(error.Code, error.Message));
 
         var problemDetails = CreateProblemDetails(domainException, "Error", GetProblemStatus(baseDomainResponse.ErrorType.Value));
 

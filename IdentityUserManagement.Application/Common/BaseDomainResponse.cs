@@ -4,11 +4,11 @@ public class BaseDomainResponse
 {
     public BaseDomainErrorType? ErrorType { get; set; }
     
-    public List<string>? Errors { get; set; }
+    public List<BaseDomainError>? Errors { get; set; }
     
     public bool IsSuccess => ErrorType is null;
 
-    public void AddError(string errorMessage, BaseDomainErrorType errorType = BaseDomainErrorType.Unknown)
+    public void AddError(BaseDomainError errorMessage, BaseDomainErrorType errorType = BaseDomainErrorType.Unknown)
     {
         ErrorType ??= errorType;
         
@@ -16,7 +16,7 @@ public class BaseDomainResponse
         Errors.Add(errorMessage);
     }
     
-    public void AddErrors(IEnumerable<string> errorMessages, BaseDomainErrorType errorType = BaseDomainErrorType.Unknown)
+    public void AddErrors(IEnumerable<BaseDomainError> errorMessages, BaseDomainErrorType errorType = BaseDomainErrorType.Unknown)
     {
         ErrorType ??= errorType;
         

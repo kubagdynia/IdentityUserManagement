@@ -25,7 +25,8 @@ internal class ResetPasswordCommandHandler(UserManager<User> userManager)
         if (result.Succeeded) return new ResetPasswordCommandResponse();
         
         var response = new ResetPasswordCommandResponse();
-        response.AddErrors(errorMessages: result.Errors.Select(e => e.Description),
+        response.AddErrors(
+            errorMessages: result.Errors.Select(e => new BaseDomainError { Code = e.Code, Message = e.Description }),
             errorType: BaseDomainErrorType.BadRequest);
         return response;
     }

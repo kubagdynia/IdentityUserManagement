@@ -1,3 +1,4 @@
+using IdentityUserManagement.Application.Common;
 using IdentityUserManagement.Application.Interfaces;
 using IdentityUserManagement.Core.Constants;
 using IdentityUserManagement.Core.Entities;
@@ -19,7 +20,9 @@ internal class RegisterUserCommandHandler(UserManager<User> userManager, IIdenti
         if (!result.Succeeded)
         {
             var response = new RegisterUserCommandResponse { IsSuccessRegistration = false };
-            response.AddErrors(result.Errors.Select(e => e.Description));
+            response.AddErrors(
+                errorMessages: result.Errors.Select(e => new BaseDomainError
+                    { Code = e.Code, Message = e.Description }), BaseDomainErrorType.BadRequest);
             return response;
         }
 

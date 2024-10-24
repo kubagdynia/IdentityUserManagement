@@ -21,7 +21,7 @@ internal class AuthenticateUserCommandHandler(UserManager<User> userManager, ITo
         if (!await userManager.IsEmailConfirmedAsync(user))
         {
             var response = new AuthenticateUserCommandResponse();
-            response.AddError(errorMessage: "Email is not confirmed", errorType: BaseDomainErrorType.Conflict);
+            response.AddError(new BaseDomainError{Code = "EmailIsNotConfirmed", Message = "Email is not confirmed"}, errorType: BaseDomainErrorType.Conflict);
             return response;
         }
 
