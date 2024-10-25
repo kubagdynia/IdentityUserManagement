@@ -5,6 +5,7 @@ using IdentityUserManagement.Infrastructure.Configurations;
 using IdentityUserManagement.Infrastructure.Persistence;
 using IdentityUserManagement.Infrastructure.Security;
 using IdentityUserManagement.Infrastructure.Email;
+using IdentityUserManagement.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -31,13 +32,15 @@ public static class ServiceCollectionExtensions
                 opt.Password.RequireUppercase = identitySettings.Password.RequireUppercase;
                 opt.Password.RequireLowercase = identitySettings.Password.RequireLowercase;
                 opt.Password.RequireNonAlphanumeric = identitySettings.Password.RequireNonAlphanumeric;
-                
+
                 opt.Lockout.AllowedForNewUsers = identitySettings.Lockout.AllowedForNewUsers;
-                opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(identitySettings.Lockout.DefaultLockoutTimeInMinutes);
+                opt.Lockout.DefaultLockoutTimeSpan =
+                    TimeSpan.FromMinutes(identitySettings.Lockout.DefaultLockoutTimeInMinutes);
                 opt.Lockout.MaxFailedAccessAttempts = identitySettings.Lockout.MaxFailedAccessAttempts;
             })
             .AddEntityFrameworkStores<IdentityUserManagementDbContext>()
-            .AddDefaultTokenProviders();
+            .AddDefaultTokenProviders()
+            .AddPasswordValidator<CustomPasswordValidator<User>>();
         
         services.Configure<DataProtectionTokenProviderOptions>(opt =>
         {

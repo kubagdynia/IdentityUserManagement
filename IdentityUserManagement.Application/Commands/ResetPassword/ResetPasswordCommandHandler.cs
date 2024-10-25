@@ -23,8 +23,13 @@ internal class ResetPasswordCommandHandler(UserManager<User> userManager)
         
         var result = await userManager.ResetPasswordAsync(user, decodedToken, request.Password!);
         
-        return result.Succeeded
-            ? new ResetPasswordCommandResponse()
-            : result.MapErrors<ResetPasswordCommandResponse>(BaseDomainErrorType.BadRequest);
+        if (!result.Succeeded)
+        {
+            return result.MapErrors<ResetPasswordCommandResponse>(BaseDomainErrorType.BadRequest);
+        }
+        
+        await userManager.SetLockoutEndDateAsync(user, null);
+
+        return new ResetPasswordCommandResponse();
     }
 }
