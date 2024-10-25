@@ -7,4 +7,6 @@ public interface IIdentitySettings
     bool EmailConfirmationRequired { get; }
     
     bool SetEmailAsConfirmedDuringRegistration { get; }
+    
+    int TokenLifespanInHours { get; }
 }
