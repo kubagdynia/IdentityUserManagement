@@ -27,6 +27,9 @@ public static class AccountEndpoints
         // POST /api/accounts/confirmemail
         ConfirmEmail(route);
         
+        // POST /api/accounts/twofactorauthenticate
+        TwoFactorAuthenticate(route);
+        
         return app;
     }
 
@@ -59,6 +62,25 @@ public static class AccountEndpoints
             .WithName("AuthenticateUser")
             .WithSummary("Authenticate a user")
             .Produces<AuthenticateUserResponse>(StatusCodes.Status200OK)
+            .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
+            .Produces<ProblemDetails>(StatusCodes.Status409Conflict)
+            .Produces<ProblemDetails>(StatusCodes.Status401Unauthorized)
+            .WithOpenApi();
+    }
+    
+    private static void TwoFactorAuthenticate(RouteGroupBuilder route)
+    {
+        route.MapPost("/twofactorauthenticate",
+                async Task<IResult> (TwoFactorRequest request, IMediator mediator, IProblemDetailsFactory problemDetailsFactory) =>
+                {
+                    var result = await mediator.Send(request.ToCommand());
+                    return !result.IsSuccess
+                        ? problemDetailsFactory.MapErrorResponse(result)
+                        : TypedResults.Ok(result.ToResponse());
+                })
+            .WithName("TwoFactorAuthenticate")
+            .WithSummary("Authenticate the user using two-factor authentication")
+            .Produces<TwoFactorResponse>(StatusCodes.Status200OK)
             .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
             .Produces<ProblemDetails>(StatusCodes.Status409Conflict)
             .Produces<ProblemDetails>(StatusCodes.Status401Unauthorized)

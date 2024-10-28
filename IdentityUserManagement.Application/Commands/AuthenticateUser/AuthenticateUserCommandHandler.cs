@@ -56,11 +56,34 @@ internal class AuthenticateUserCommandHandler(UserManager<User> userManager, ITo
             return new AuthenticateUserCommandResponse { ErrorType = BaseDomainErrorType.Unauthorized };
         }
         
+        if (await userManager.GetTwoFactorEnabledAsync(user))
+        {
+            return await GenerateTwoFactorToken(user);
+        }
+        
         var roles = await userManager.GetRolesAsync(user);
         var token = tokenGenerator.GenerateToken(user, roles);
         
         await userManager.ResetAccessFailedCountAsync(user);
 
         return new AuthenticateUserCommandResponse { IsAuthSuccessful = true, Token = token };
+    }
+    
+    private async Task<AuthenticateUserCommandResponse> GenerateTwoFactorToken(User user)
+    {
+        var providers = await userManager.GetValidTwoFactorProvidersAsync(user);
+        if (!providers.Contains("Email"))
+        {
+            var errorResponse =  new AuthenticateUserCommandResponse();
+            errorResponse.AddError("Invalid2FactorProvider", "Invalid 2-Factor Provider", BaseDomainErrorType.Conflict);
+            return errorResponse;
+        }
+        
+        var token = await userManager.GenerateTwoFactorTokenAsync(user, "Email");
+        
+        var message = new EmailMetadata(user.Email!, "2-Factor Authentication", $"Your 2-Factor token is: {token}");
+        await emailService.SendAsync(message);
+        
+        return new AuthenticateUserCommandResponse { RequiresTwoFactor = true, Provider = "Email" };
     }
 }

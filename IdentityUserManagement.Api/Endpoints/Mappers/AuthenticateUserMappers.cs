@@ -16,6 +16,7 @@ public static class AuthenticateUserMappers
     
     public static AuthenticateUserResponse ToResponse(this AuthenticateUserCommandResponse commandResponse)
     {
-        return new AuthenticateUserResponse(commandResponse.IsAuthSuccessful, commandResponse.Token);
+        return new AuthenticateUserResponse(commandResponse.IsAuthSuccessful, commandResponse.Token,
+            commandResponse.RequiresTwoFactor, commandResponse.Provider);
     }
 }

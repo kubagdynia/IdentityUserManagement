@@ -11,6 +11,17 @@ Content-Type: application/json
   "password": "T3estP4ssword!!!"
 }
 
+### Authenticate the user using two-factor authentication
+
+POST {{baseUrl}}/api/accounts/twofactorauthenticate
+Content-Type: application/json
+
+{
+  "email": "angelinaswan@gmail.com",
+  "provider": "Email",
+  "token": "123456"
+}
+
 ### Register a new user
 
 POST {{baseUrl}}/api/accounts/register
@@ -22,7 +33,8 @@ Content-Type: application/json
   "email": "angelinaswan1@gmail.com",
   "password": "T3estP4ssword!!",
   "confirmPassword": "T3estP4ssword!!",
-  "clientUri": "http://localhost:7060/authentication/emailconfirmation"
+  "clientUri": "http://localhost:7060/authentication/emailconfirmation",
+  "twoFactorEnabled": false
 }
 
 ### Confirm the user's email

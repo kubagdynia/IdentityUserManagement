@@ -14,7 +14,8 @@ public static class RegisterUserMappers
             Email = request.Email,
             Password = request.Password,
             ConfirmPassword = request.ConfirmPassword,
-            ClientUri = request.ClientUri
+            ClientUri = request.ClientUri,
+            TwoFactorEnabled = request.TwoFactorEnabled
         };
     }
 }

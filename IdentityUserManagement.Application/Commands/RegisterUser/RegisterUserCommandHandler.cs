@@ -32,6 +32,11 @@ internal class RegisterUserCommandHandler(UserManager<User> userManager, IIdenti
         {
             await SendConfirmationEmail(request, user);
         }
+        
+        if (request.TwoFactorEnabled == true)
+        {
+            await userManager.SetTwoFactorEnabledAsync(user, true);
+        }
 
         await AddRoles(user);
         

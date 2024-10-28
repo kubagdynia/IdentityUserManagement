@@ -15,4 +15,6 @@ public class RegisterUserCommand : IRequest<RegisterUserCommandResponse>
     public string? ConfirmPassword { get; set; }
     
     public string? ClientUri { get; set; }
+    
+    public bool? TwoFactorEnabled { get; set; }
 }
