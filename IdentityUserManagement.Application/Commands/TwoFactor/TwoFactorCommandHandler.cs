@@ -22,9 +22,8 @@ internal class TwoFactorCommandHandler(UserManager<User> userManager, ITokenGene
         
         if (!validVerification)
         {
-            var errorResponse = new TwoFactorCommandResponse();
-            errorResponse.AddError("2FactorValidationFailed", "Two-factor validation failed", BaseDomainErrorType.BadRequest);
-            return errorResponse;
+            return new TwoFactorCommandResponse()
+                .AddError("2FactorValidationFailed", "Two-factor validation failed", BaseDomainErrorType.BadRequest);
         }
         
         var roles = await userManager.GetRolesAsync(user);

@@ -7,19 +7,23 @@ public class BaseDomainResponse
     public List<BaseDomainError>? Errors { get; set; }
     
     public bool IsSuccess => ErrorType is null;
+}
 
-    public void AddError(string code, string message, BaseDomainErrorType errorType = BaseDomainErrorType.Unknown)
+public static class BaseDomainResponseExtensions
+{
+    public static T AddError<T>(this T response, string code, string message, BaseDomainErrorType errorType = BaseDomainErrorType.Unknown) where T : BaseDomainResponse
     {
-        ErrorType ??= errorType;
-        Errors ??= [];
-        Errors.Add(new BaseDomainError { Code = code, Message = message });
+        response.ErrorType ??= errorType;
+        response.Errors ??= [];
+        response.Errors.Add(new BaseDomainError { Code = code, Message = message });
+        return response;
     }
     
-    public void AddErrors(IEnumerable<BaseDomainError> errorMessages, BaseDomainErrorType errorType = BaseDomainErrorType.Unknown)
+    public static T AddErrors<T>(this T response, IEnumerable<BaseDomainError> errorMessages, BaseDomainErrorType errorType = BaseDomainErrorType.Unknown) where T : BaseDomainResponse
     {
-        ErrorType ??= errorType;
-        
-        Errors ??= [];
-        Errors.AddRange(errorMessages);
+        response.ErrorType ??= errorType;
+        response.Errors ??= [];
+        response.Errors.AddRange(errorMessages);
+        return response;
     }
 }

@@ -21,11 +21,9 @@ internal class RegisterUserCommandHandler(UserManager<User> userManager, IIdenti
         IdentityResult result = await userManager.CreateAsync(user, request.Password!);
         if (!result.Succeeded)
         {
-            var response = new RegisterUserCommandResponse();
-            response.AddErrors(
-                result.Errors.Select(e => new BaseDomainError { Code = e.Code, Message = e.Description }).ToList(),
-                BaseDomainErrorType.BadRequest);
-            return response;
+            return new RegisterUserCommandResponse()
+                .AddErrors(result.Errors.Select(
+                        e => new BaseDomainError { Code = e.Code, Message = e.Description }).ToList(), BaseDomainErrorType.BadRequest);
         }
 
         if (identitySettings is { EmailConfirmationRequired: true, SetEmailAsConfirmedDuringRegistration: false })

@@ -22,16 +22,14 @@ internal class AuthenticateUserCommandHandler(UserManager<User> userManager, ITo
         
         if (!await userManager.IsEmailConfirmedAsync(user))
         {
-            var response = new AuthenticateUserCommandResponse();
-            response.AddError("EmailIsNotConfirmed", "Email is not confirmed", BaseDomainErrorType.Conflict);
-            return response;
+            return new AuthenticateUserCommandResponse()
+                .AddError("EmailIsNotConfirmed", "Email is not confirmed", BaseDomainErrorType.Conflict);
         }
         
         if (await userManager.IsLockedOutAsync(user))
         {
-            var response = new AuthenticateUserCommandResponse();
-            response.AddError("UserAccountIsLockedOut", "User account is locked out", BaseDomainErrorType.Conflict);
-            return response;
+            return new AuthenticateUserCommandResponse()
+                .AddError("UserAccountIsLockedOut", "User account is locked out", BaseDomainErrorType.Conflict);
         }
 
         if (!await userManager.CheckPasswordAsync(user, request.Password!))
@@ -47,10 +45,9 @@ internal class AuthenticateUserCommandHandler(UserManager<User> userManager, ITo
 
                 // Send the email
                 await emailService.SendAsync(emailMetadata);
-                
-                var response = new AuthenticateUserCommandResponse();
-                response.AddError("UserAccountIsLockedOut", "User account is locked out", BaseDomainErrorType.Conflict);
-                return response;
+
+                return new AuthenticateUserCommandResponse()
+                    .AddError("UserAccountIsLockedOut", "User account is locked out", BaseDomainErrorType.Conflict);
             }
 
             return new AuthenticateUserCommandResponse { ErrorType = BaseDomainErrorType.Unauthorized };
@@ -74,9 +71,8 @@ internal class AuthenticateUserCommandHandler(UserManager<User> userManager, ITo
         var providers = await userManager.GetValidTwoFactorProvidersAsync(user);
         if (!providers.Contains("Email"))
         {
-            var errorResponse =  new AuthenticateUserCommandResponse();
-            errorResponse.AddError("Invalid2FactorProvider", "Invalid 2-Factor Provider", BaseDomainErrorType.Conflict);
-            return errorResponse;
+            return new AuthenticateUserCommandResponse()
+                .AddError("Invalid2FactorProvider", "Invalid 2-Factor Provider", BaseDomainErrorType.Conflict);
         }
         
         var token = await userManager.GenerateTwoFactorTokenAsync(user, "Email");
