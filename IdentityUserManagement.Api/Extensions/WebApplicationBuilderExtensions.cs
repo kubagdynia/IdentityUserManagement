@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Options;
+using Serilog;
 
 namespace IdentityUserManagement.Api.Extensions;
 
@@ -13,6 +14,7 @@ public static class WebApplicationBuilderExtensions
 {
     public static WebApplicationBuilder AddPresentation(this WebApplicationBuilder builder)
     {
+        ConfigureSerilog(builder);
         ConfigureAuthentication(builder);
         ConfigureAuthorization(builder);
         ConfigureSwaggerAndExceptionHandling(builder);
@@ -21,7 +23,21 @@ public static class WebApplicationBuilderExtensions
         
         return builder;
     }
-    
+
+    private static void ConfigureSerilog(WebApplicationBuilder builder)
+    {
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(builder.Configuration)
+            .Enrich.FromLogContext()
+            .CreateLogger();
+        
+        // configure logging
+        builder.Services.AddLogging(b =>
+        { 
+            b.AddSerilog();
+        });
+    }
+
     private static void ConfigureAuthentication(WebApplicationBuilder builder)
     {
         var jwtSettings = GetJwtSettings(builder);
