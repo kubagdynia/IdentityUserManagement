@@ -54,16 +54,19 @@ internal class RegisterUserCommandHandler(UserManager<User> userManager, IIdenti
         
         var callback = QueryHelpers.AddQueryString(request.ClientUri!, param);
 
-        EmailMetadata emailMetadata = new(
-
-            ToAddress: user.Email!,
-            Subject: "Confirm your email",
-            Body: $@"Click <a href=""{callback}"">here</a> to confirm your email.
-
-If you did not create an account, please ignore this email.");
+        EmailTemplateData emailTemplateData = new()
+        {
+            EmailUser = new EmailUser(Name: user.Email!, Email: user.Email!, FirstName: user.FirstName, LastName: user.LastName),
+            ToAddress = user.Email!,
+            Subject = "Confirm your email",
+            ActionLink = callback
+        };
+        
+        var templateFile =
+            $"{Directory.GetCurrentDirectory()}/../IdentityUserManagement.Infrastructure/EmailTemplates/RegisterConfirmation.cshtml";
         
         // Send the email
-        await emailService.SendAsync(emailMetadata);
+        await emailService.SendAsync(emailTemplateData, templateFile);
     }
 
     private async Task AddRoles(User user)

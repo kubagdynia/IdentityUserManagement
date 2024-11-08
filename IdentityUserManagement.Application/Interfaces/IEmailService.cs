@@ -11,4 +11,6 @@ public interface IEmailService
     Task SendAsync(EmailMetadata emailMetadata, EmailUser emailUser, string templateFile);
     
     Task SendAsync(List<EmailMetadata> emailsMetadata, EmailUser emailUser, string templateFile);
+    
+    Task SendAsync(EmailTemplateData emailTemplateData, string templateFile);
 }

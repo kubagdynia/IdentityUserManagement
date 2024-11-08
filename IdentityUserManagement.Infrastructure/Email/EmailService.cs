@@ -13,7 +13,7 @@ internal class EmailService(IFluentEmail fluentEmail, IFluentEmailFactory fluent
             .Subject(emailMetadata.Subject)
             .Body(emailMetadata.Body);
         
-        AddAttachment(emailMetadata, email);
+        AddAttachment(emailMetadata.AttachmentPath, email);
         
         await email.SendAsync();
     }
@@ -27,7 +27,7 @@ internal class EmailService(IFluentEmail fluentEmail, IFluentEmailFactory fluent
                 .Subject(emailMetadata.Subject)
                 .Body(emailMetadata.Body);
         
-            AddAttachment(emailMetadata, email);
+            AddAttachment(emailMetadata.AttachmentPath, email);
         
             await email.SendAsync();
         }
@@ -40,7 +40,7 @@ internal class EmailService(IFluentEmail fluentEmail, IFluentEmailFactory fluent
             .Subject(emailMetadata.Subject)
             .UsingTemplateFromFile(templateFile, emailUser);
             
-        AddAttachment(emailMetadata, email);
+        AddAttachment(emailMetadata.AttachmentPath, email);
         
         await email.SendAsync();
     }
@@ -54,18 +54,30 @@ internal class EmailService(IFluentEmail fluentEmail, IFluentEmailFactory fluent
                 .Subject(emailMetadata.Subject)
                 .UsingTemplateFromFile(templateFile, emailUser);
             
-            AddAttachment(emailMetadata, email);
+            AddAttachment(emailMetadata.AttachmentPath, email);
         
             await email.SendAsync();
         }
     }
-    
-    private static void AddAttachment(EmailMetadata emailMetadata, IFluentEmail email)
+
+    public async Task SendAsync(EmailTemplateData emailTemplateData, string templateFile)
     {
-        if (!string.IsNullOrEmpty(emailMetadata.AttachmentPath))
+        var email = fluentEmail
+            .To(emailTemplateData.ToAddress)
+            .Subject(emailTemplateData.Subject)
+            .UsingTemplateFromFile(templateFile, emailTemplateData);
+            
+        AddAttachment(emailTemplateData.AttachmentPath, email);
+        
+        await email.SendAsync();
+    }
+
+    private static void AddAttachment(string? attachmentPath, IFluentEmail email)
+    {
+        if (!string.IsNullOrEmpty(attachmentPath))
         {
-            email.AttachFromFilename(emailMetadata.AttachmentPath,
-                attachmentName: Path.GetFileName(emailMetadata.AttachmentPath));
+            email.AttachFromFilename(attachmentPath,
+                attachmentName: Path.GetFileName(attachmentPath));
         }
     }
 }
