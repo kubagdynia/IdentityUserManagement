@@ -3,6 +3,7 @@ using System;
 using IdentityUserManagement.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IdentityUserManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(IdentityUserManagementDbContext))]
-    partial class IdentityUserManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241112112839_AddSubjectToEmailTemplate")]
+    partial class AddSubjectToEmailTemplate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
@@ -41,22 +44,6 @@ namespace IdentityUserManagement.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("EmailTemplate");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "3fecb42a-33c8-4590-9015-29538af12a62",
-                            Name = "UserRegistration",
-                            Subject = "Welcome to our platform",
-                            Template = "<h1>Welcome to our platform</h1>"
-                        },
-                        new
-                        {
-                            Id = "33d894bc-32bd-4010-a05d-50df7c354acb",
-                            Name = "UserConfirmation",
-                            Subject = "Confirm your email",
-                            Template = "@model  IdentityUserManagement.Application.Dto.EmailTemplateData\r\n<br />\r\nDear <b>@Model.EmailUser.FirstName @Model.EmailUser.LastName</b>,\r\n<br />\r\nClick <a href=\"@Model.ActionLink\">here</a> to confirm your email.\r\n<br />\r\n<br />\r\nIf you did not create an account, please ignore this email."
-                        });
                 });
 
             modelBuilder.Entity("IdentityUserManagement.Core.Entities.Role", b =>
