@@ -1,10 +1,12 @@
 using FluentEmail.Core;
 using IdentityUserManagement.Application.Dto;
 using IdentityUserManagement.Application.Interfaces;
+using IdentityUserManagement.Infrastructure.Persistence;
 
 namespace IdentityUserManagement.Infrastructure.Email;
 
-internal class EmailService(IFluentEmail fluentEmail, IFluentEmailFactory fluentEmailFactory) : IEmailService
+internal class EmailService(IFluentEmail fluentEmail, IFluentEmailFactory fluentEmailFactory,
+    IdentityUserManagementDbContext dbContext) : IEmailService
 {
     public async Task SendAsync(EmailMetadata emailMetadata)
     {
@@ -60,12 +62,19 @@ internal class EmailService(IFluentEmail fluentEmail, IFluentEmailFactory fluent
         }
     }
 
-    public async Task SendAsync(EmailTemplateData emailTemplateData, string templateFile)
+    public async Task SendAsync(EmailTemplateData emailTemplateData, string templateName)
     {
+        var emailTemplate = dbContext.EmailTemplate.FirstOrDefault(e => e.Name == templateName);
+        
+        if (emailTemplate == null)
+        {
+            throw new Exception($"Email template with name {templateName} not found.");
+        }
+        
         var email = fluentEmail
             .To(emailTemplateData.ToAddress)
-            .Subject(emailTemplateData.Subject)
-            .UsingTemplateFromFile(templateFile, emailTemplateData);
+            .Subject(string.IsNullOrEmpty(emailTemplateData.Subject) ? emailTemplate.Subject : emailTemplateData.Subject)
+            .UsingTemplate(emailTemplate.Template, emailTemplateData);
             
         AddAttachment(emailTemplateData.AttachmentPath, email);
         

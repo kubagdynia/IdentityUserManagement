@@ -24,4 +24,6 @@ public class IdentityUserManagementDbContext(DbContextOptions options) : Identit
         builder.ApplyConfiguration(new RoleConfiguration());
         builder.ApplyConfiguration(new EmailTemplateConfiguration());
     }
+    
+    public DbSet<EmailTemplate> EmailTemplate { get; set; }
 }

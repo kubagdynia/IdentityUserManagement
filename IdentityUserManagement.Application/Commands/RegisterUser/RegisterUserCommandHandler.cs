@@ -58,15 +58,11 @@ internal class RegisterUserCommandHandler(UserManager<User> userManager, IIdenti
         {
             EmailUser = new EmailUser(Name: user.Email!, Email: user.Email!, FirstName: user.FirstName, LastName: user.LastName),
             ToAddress = user.Email!,
-            Subject = "Confirm your email",
             ActionLink = callback
         };
         
-        var templateFile =
-            $"{Directory.GetCurrentDirectory()}/../IdentityUserManagement.Infrastructure/EmailTemplates/RegisterConfirmation.cshtml";
-        
         // Send the email
-        await emailService.SendAsync(emailTemplateData, templateFile);
+        await emailService.SendAsync(emailTemplateData, EmailTemplateType.UserConfirmation);
     }
 
     private async Task AddRoles(User user)
