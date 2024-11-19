@@ -7,4 +7,5 @@ public record EmailTemplateData
     public EmailUser? EmailUser { get; set; }
     public string? AttachmentPath { get; set; }
     public string? ActionLink { get; set; }
+    public string? ActionCode { get; set; }
 };

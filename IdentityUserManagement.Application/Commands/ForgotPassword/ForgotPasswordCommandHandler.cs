@@ -1,6 +1,7 @@
 using IdentityUserManagement.Application.Common;
 using IdentityUserManagement.Application.Dto;
 using IdentityUserManagement.Application.Interfaces;
+using IdentityUserManagement.Core.Constants;
 using IdentityUserManagement.Core.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -30,16 +31,15 @@ internal class ForgotPasswordCommandHandler(UserManager<User> userManager, IEmai
         
         var callback = QueryHelpers.AddQueryString(request.ClientUri!, param);
         
-        EmailMetadata emailMetadata = new(
-                
-            ToAddress: request.Email!,
-            Subject: "Reset your password",
-            Body: $@"Click <a href=""{callback}"">here</a> to reset your password.
-
-If you did not request a password reset, please ignore this email." );
+        EmailTemplateData emailTemplateData = new()
+        {
+            EmailUser = new EmailUser(Name: user.Email!, Email: user.Email!, FirstName: user.FirstName, LastName: user.LastName),
+            ToAddress = user.Email!,
+            ActionLink = callback
+        };
         
         // Send the email
-        await emailService.SendAsync(emailMetadata);
+        await emailService.SendAsync(emailTemplateData, EmailTemplateType.ResetPassword);
         
         return new ForgotPasswordCommandResponse();
     }

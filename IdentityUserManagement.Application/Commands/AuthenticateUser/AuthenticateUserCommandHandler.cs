@@ -2,6 +2,7 @@ using IdentityUserManagement.Application.Common;
 using IdentityUserManagement.Application.Dto;
 using IdentityUserManagement.Application.Interfaces;
 using IdentityUserManagement.Application.Security;
+using IdentityUserManagement.Core.Constants;
 using IdentityUserManagement.Core.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -77,8 +78,15 @@ internal class AuthenticateUserCommandHandler(UserManager<User> userManager, ITo
         
         var token = await userManager.GenerateTwoFactorTokenAsync(user, "Email");
         
-        var message = new EmailMetadata(user.Email!, "2-Factor Authentication", $"Your 2-Factor token is: {token}");
-        await emailService.SendAsync(message);
+        EmailTemplateData emailTemplateData = new()
+        {
+            EmailUser = new EmailUser(Name: user.Email!, Email: user.Email!, FirstName: user.FirstName, LastName: user.LastName),
+            ToAddress = user.Email!,
+            ActionCode = token
+        };
+        
+        // Send the email
+        await emailService.SendAsync(emailTemplateData, EmailTemplateType.TwoFactorAuthentication);
         
         return new AuthenticateUserCommandResponse { RequiresTwoFactor = true, Provider = "Email" };
     }

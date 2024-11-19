@@ -3,6 +3,7 @@ using System;
 using IdentityUserManagement.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IdentityUserManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(IdentityUserManagementDbContext))]
-    partial class IdentityUserManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241119112039_SeedMoreEmailTemplate")]
+    partial class SeedMoreEmailTemplate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
